@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import ActivitiesView from './components/ActivitiesView.vue'
+import AppSidebar from './components/AppSidebar.vue'
+import PracticeView from './components/PracticeView.vue'
+import SummaryView from './components/SummaryView.vue'
+import TopicsView from './components/TopicsView.vue'
 
 type Tab = 'resumen' | 'temas' | 'practicar' | 'actividades'
 type Simulation = 'normal' | 'fallo' | 'particion' | 'recuperado'
@@ -216,214 +221,56 @@ onMounted(() => {
 watch(completed, (value) => localStorage.setItem('bda-study-progress', JSON.stringify(value)), { deep: true })
 </script>
 
+
 <template>
   <div class="app-shell">
-    <aside class="sidebar">
-      <button class="brand" @click="selectTab('resumen')" aria-label="Ir al resumen">
-        <span class="brand-icon">▤</span>
-        <span><small>BDA</small><strong>STUDY LAB</strong></span>
-      </button>
-      <nav class="main-nav" aria-label="Navegación principal">
-        <button v-for="item in [
-          ['resumen', '⌂', 'Resumen'],
-          ['temas', '▦', 'Temas'],
-          ['practicar', '✎', 'Practicar'],
-          ['actividades', '✓', 'Actividades']
-        ]" :key="item[0]" :class="{ active: tab === item[0] }" @click="selectTab(item[0] as Tab)">
-          <span>{{ item[1] }}</span>{{ item[2] }}
-        </button>
-      </nav>
-      <div class="side-progress">
-        <div><span class="eyebrow">PROGRESO GENERAL</span><strong>{{ progress }}%</strong></div>
-        <div class="progress"><span :style="{ width: progress + '%' }"></span></div>
-        <small>{{ completed.length }} de {{ topics.length }} módulos completados</small>
-      </div>
-    </aside>
-
+    <AppSidebar
+      :active-tab="tab"
+      :progress="progress"
+      :completed-count="completed.length"
+      :topic-count="topics.length"
+      @select="selectTab"
+    />
     <main>
-      <section v-if="tab === 'resumen'" class="page">
-        <header class="hero">
-          <div>
-            <span class="eyebrow">LAB SESSION · BASES DE DATOS AVANZADAS</span>
-            <h1>Sistemas distribuidos,<br><em>sin memorizar a ciegas.</em></h1>
-            <p>Comprende los mecanismos, provoca fallos y practica cómo justificar cada decisión técnica.</p>
-          </div>
-          <div class="hero-action">
-            <div class="objective"><span class="eyebrow">OBJETIVO DE SESIÓN</span><strong>Explicar un failover sin confundir disponibilidad, consenso y consistencia.</strong></div>
-            <button class="primary" @click="toggleTopic(4)">Continuar estudiando <span>→</span></button>
-          </div>
-        </header>
-
-        <section class="simulator">
-          <div class="section-heading">
-            <div><span class="eyebrow">SYSTEM OBSERVABILITY SIMULATOR</span><h2>Provoca el fallo. Observa la coordinación.</h2></div>
-            <span class="status" :class="simulation">{{ simulation === 'normal' ? 'CLUSTER: ESTABLE' : simulation === 'recuperado' ? 'CLUSTER: RECUPERADO' : 'CLUSTER: DEGRADADO' }}</span>
-          </div>
-          <div class="sim-controls">
-            <button @click="runSimulation('fallo')">Simular fallo maestro</button>
-            <button @click="runSimulation('particion')">Partición de red</button>
-            <button @click="runSimulation('recuperado')">Recuperar</button>
-            <button @click="runSimulation('normal')">Restablecer</button>
-          </div>
-          <div class="sim-grid">
-            <div class="network" :class="simulation">
-              <div class="client node"><b>CLIENTES</b><span>Solicitudes</span></div>
-              <div class="network-line line-a"></div>
-              <div class="network-line line-b"></div>
-              <div class="masters">
-                <div class="node master" :class="{ failed: simulation === 'fallo' || simulation === 'particion' }"><span class="pulse"></span><b>NODO 01</b><small>{{ simulation === 'fallo' ? 'FALLO' : simulation === 'particion' ? 'AISLADO' : 'MAESTRO' }}</small></div>
-                <div class="node standby" :class="{ promoted: simulation !== 'normal' }"><b>NODO 02</b><small>{{ simulation === 'normal' ? 'EN ESPERA' : 'NUEVO MAESTRO' }}</small></div>
-              </div>
-              <div class="replicas">
-                <div v-for="n in 3" :key="n" class="node replica"><span>▤</span><small>RÉPLICA {{ n }}</small></div>
-              </div>
-              <span class="network-label">BLOQUEO EXCLUSIVO + HEARTBEAT + QUÓRUM</span>
-            </div>
-            <div class="terminal">
-              <div class="terminal-head"><span>●</span> SYSTEM_LOG_OUTPUT</div>
-              <p v-for="(log, i) in logs" :key="log"><time>[12:05:0{{ i + 1 }}]</time> {{ log }}</p>
-              <div class="terminal-question"><span>TRAMPA DE EXAMEN</span>¿Por qué un timeout no basta para evitar dos maestros?</div>
-            </div>
-          </div>
-          <div class="simulation-explain">
-            <strong>{{ simulation === 'normal' ? 'Estado normal' : simulation === 'fallo' ? 'Conmutación por error' : simulation === 'particion' ? 'Partición y split-brain' : 'Reincorporación segura' }}</strong>
-            <p v-if="simulation === 'normal'">El maestro activo conserva el bloqueo exclusivo y emite heartbeats. El nodo en espera replica estado, pero no tiene autoridad para escribir.</p>
-            <p v-else-if="simulation === 'fallo'">Al expirar el lease, se libera la autoridad anterior. El nodo en espera obtiene mayoría, adquiere el bloqueo y continúa el servicio.</p>
-            <p v-else-if="simulation === 'particion'">La rama con mayoría elige líder. La rama minoritaria debe rechazar escrituras; los fencing tokens impiden que un maestro aislado opere con autoridad obsoleta.</p>
-            <p v-else>El nodo recuperado no vuelve como maestro: primero sincroniza el registro y se reincorpora como seguidor para evitar sobrescribir decisiones confirmadas.</p>
-          </div>
-        </section>
-
-        <section>
-          <div class="section-heading"><div><span class="eyebrow">RUTA DE DOMINIO</span><h2>Seis módulos, una sola arquitectura mental.</h2></div><button class="text-button" @click="selectTab('temas')">Ver todos →</button></div>
-          <div class="module-grid">
-            <button v-for="(topic, i) in topics" :key="topic.title" class="module-card" @click="toggleTopic(i)">
-              <span class="module-number">{{ topic.index }}</span><span class="module-icon">{{ topic.icon }}</span>
-              <h3>{{ topic.title }}</h3><p>{{ topic.goal }}</p>
-              <div><span>{{ completed.includes(i) ? 'COMPLETADO' : i === 4 ? 'EN CURSO' : 'POR ESTUDIAR' }}</span><b>→</b></div>
-            </button>
-          </div>
-        </section>
-
-        <section class="dashboard-bottom">
-          <div class="quick-card">
-            <span class="eyebrow">RECUPERACIÓN ACTIVA</span><h2>¿Puedes explicarlo sin mirar?</h2>
-            <p>{{ flashcards[0].q }}</p><button class="primary" @click="selectTab('practicar')">Practicar ahora →</button>
-          </div>
-          <button class="activities-card" @click="selectTab('actividades')">
-            <span class="eyebrow">APARTADO SOLICITADO</span><strong>15 actividades resueltas</strong>
-            <p>Autoaprendizaje, debate crítico y reflexión con respuestas modelo.</p><span>ABRIR GUÍAS →</span>
-          </button>
-        </section>
-      </section>
-
-      <section v-else-if="tab === 'temas'" class="page">
-        <header class="page-header"><span class="eyebrow">REPOSITORIO CONCEPTUAL · 06 MÓDULOS</span><h1>Entender antes de memorizar.</h1><p>Cada tema conecta mecanismo, aplicación, caso límite y trampa de examen.</p></header>
-        <div class="topic-layout">
-          <aside class="topic-index">
-            <button v-for="(topic, i) in topics" :key="topic.title" :class="{ active: activeTopic === i }" @click="activeTopic = i"><span>{{ topic.index }}</span>{{ topic.title }}</button>
-          </aside>
-          <article class="reader">
-            <div class="reader-heading"><div><span class="eyebrow">MÓDULO {{ topics[activeTopic].index }} · DIFICULTAD ALTA</span><h2>{{ topics[activeTopic].title }}</h2><p>{{ topics[activeTopic].goal }}</p></div><button class="complete" :class="{ done: completed.includes(activeTopic) }" @click="markComplete(activeTopic)">{{ completed.includes(activeTopic) ? '✓ Completado' : 'Marcar completado' }}</button></div>
-            <div class="concept-block central"><span>IDEA CENTRAL</span><p>{{ topics[activeTopic].summary }}</p></div>
-            <div class="reader-columns">
-              <div class="concept-block"><span>CÓMO FUNCIONA</span><p>{{ topics[activeTopic].deep }}</p></div>
-              <div class="concept-block example"><span>EJEMPLO APLICADO</span><p>{{ topics[activeTopic].example }}</p></div>
-            </div>
-            <div class="concept-block trap"><span>⚠ TRAMPA DE EXAMEN</span><p>{{ topics[activeTopic].trap }}</p></div>
-            <div class="analysis-pattern">
-              <span class="eyebrow">PLANTILLA PARA RESPONDER AL PROFESOR</span>
-              <h3>Contexto → mecanismo → trade-off → consecuencia</h3>
-              <ol><li>Define la condición concreta del escenario.</li><li>Nombra el mecanismo distribuido que interviene.</li><li>Explica qué garantía se gana y cuál se debilita.</li><li>Cierra con una consecuencia observable o una condición límite.</li></ol>
-            </div>
-            <div class="reader-nav"><button :disabled="activeTopic === 0" @click="activeTopic--">← Anterior</button><span>{{ activeTopic + 1 }} / {{ topics.length }}</span><button :disabled="activeTopic === topics.length - 1" @click="activeTopic++">Siguiente →</button></div>
-          </article>
-        </div>
-      </section>
-
-      <section v-else-if="tab === 'practicar'" class="page">
-        <header class="page-header"><span class="eyebrow">ACTIVE RECALL · DIFICULTAD ADAPTATIVA</span><h1>Practica el razonamiento,<br>no el reconocimiento.</h1><p>Intenta responder en voz alta antes de revelar la solución.</p></header>
-        <div class="practice-layout">
-          <div>
-            <div class="practice-meta"><span>FLASHCARD {{ flashIndex + 1 }} / {{ flashcards.length }}</span><span>RACHA: {{ streak }}</span><span>{{ flashcards[flashIndex].level }}</span></div>
-            <button class="flashcard" :class="{ revealed: flashRevealed }" @click="flashRevealed = !flashRevealed">
-              <div v-if="!flashRevealed"><span class="eyebrow">PREGUNTA TÉCNICA</span><h2>{{ flashcards[flashIndex].q }}</h2><small>TOCA PARA REVELAR ↻</small></div>
-              <div v-else><span class="eyebrow">RESPUESTA MODELO</span><p>{{ flashcards[flashIndex].a }}</p><small>TOCA PARA VOLVER ↻</small></div>
-            </button>
-            <div v-if="flashRevealed" class="recall-actions"><button @click="nextFlash(true)">✓ Lo sabía</button><button @click="nextFlash(false)">↻ Necesito repasar</button></div>
-          </div>
-          <aside class="practice-guide"><span class="eyebrow">MÉTODO</span><h3>Cómo usar estas tarjetas</h3><ol><li>Formula una respuesta completa.</li><li>Incluye mecanismo y trade-off.</li><li>Revela y detecta la omisión.</li><li>Marca con honestidad.</li></ol></aside>
-        </div>
-        <section class="quiz-section">
-          <div v-if="!quizStarted" class="quiz-intro">
-            <div>
-              <span class="eyebrow">SIMULACRO DE ALTA DIFICULTAD</span>
-              <h2>20 preguntas para detectar si realmente entendiste.</h2>
-              <p>Las alternativas incorrectas son técnicamente plausibles. Lee los calificadores, identifica el dominio de fallo y decide qué garantía está realmente en juego.</p>
-              <ul><li>20 casos de análisis</li><li>Una sola alternativa más defendible</li><li>Explicación razonada al finalizar</li></ul>
-            </div>
-            <button class="primary quiz-start" @click="startQuiz">Iniciar simulacro <span>→</span></button>
-          </div>
-
-          <div v-else-if="!quizFinished" class="quiz-runner">
-            <div class="quiz-top">
-              <div><span class="eyebrow">SIMULACRO · PREGUNTA {{ quizIndex + 1 }} DE {{ quizQuestions.length }}</span><h2>{{ quizQuestions[quizIndex].area }}</h2></div>
-              <strong>{{ Math.round(((quizIndex + 1) / quizQuestions.length) * 100) }}%</strong>
-            </div>
-            <div class="quiz-progress"><span :style="{ width: ((quizIndex + 1) / quizQuestions.length) * 100 + '%' }"></span></div>
-            <article class="quiz-card">
-              <span class="difficulty">DIFICULTAD ALTA · ANÁLISIS</span>
-              <h3>{{ quizQuestions[quizIndex].q }}</h3>
-              <div class="quiz-options">
-                <button v-for="(option, oi) in quizQuestions[quizIndex].options" :key="option" :class="{ selected: quizAnswers[quizIndex] === oi }" @click="answerQuiz(oi)">
-                  <span>{{ String.fromCharCode(65 + oi) }}</span><strong>{{ option }}</strong>
-                </button>
-              </div>
-            </article>
-            <div class="quiz-nav">
-              <button :disabled="quizIndex === 0" @click="quizIndex--">← Anterior</button>
-              <div class="quiz-dots"><button v-for="(_, qi) in quizQuestions" :key="qi" :class="{ current: quizIndex === qi, answered: quizAnswers[qi] !== null }" :aria-label="'Ir a pregunta ' + (qi + 1)" @click="quizIndex = qi"></button></div>
-              <button v-if="quizIndex < quizQuestions.length - 1" :disabled="quizAnswers[quizIndex] === null" @click="quizIndex++">Siguiente →</button>
-              <button v-else class="finish" :disabled="quizAnswers.some(answer => answer === null)" @click="finishQuiz">Finalizar</button>
-            </div>
-            <p v-if="quizAnswers.some(answer => answer === null) && quizIndex === quizQuestions.length - 1" class="quiz-warning">Debes responder las 20 preguntas antes de finalizar.</p>
-          </div>
-
-          <div v-else class="quiz-results">
-            <header>
-              <span class="eyebrow">RESULTADO DEL SIMULACRO</span>
-              <div class="score-ring"><strong>{{ quizScore }}</strong><span>/ 20</span></div>
-              <h2>{{ quizScore >= 17 ? 'Dominio sólido' : quizScore >= 13 ? 'Buen razonamiento, con fisuras' : quizScore >= 10 ? 'Comprensión todavía inestable' : 'Necesitas reconstruir los fundamentos' }}</h2>
-              <p>{{ Math.round((quizScore / quizQuestions.length) * 100) }}% de precisión. Revisa especialmente las preguntas falladas y explica por qué cada distractor no es defendible.</p>
-              <button class="outline-button" @click="startQuiz">Reintentar simulacro ↻</button>
-            </header>
-            <div class="result-list">
-              <details v-for="(question, i) in quizQuestions" :key="question.q" :class="{ correct: quizAnswers[i] === question.correct, wrong: quizAnswers[i] !== question.correct }">
-                <summary><span>{{ quizAnswers[i] === question.correct ? '✓' : '×' }}</span><strong>{{ i + 1 }}. {{ question.q }}</strong><b>+</b></summary>
-                <div>
-                  <p><span>TU RESPUESTA</span>{{ question.options[quizAnswers[i] ?? 0] }}</p>
-                  <p><span>RESPUESTA CORRECTA</span>{{ question.options[question.correct] }}</p>
-                  <p><span>RAZONAMIENTO</span>{{ question.explanation }}</p>
-                </div>
-              </details>
-            </div>
-          </div>
-        </section>
-      </section>
-
-      <section v-else class="page">
-        <header class="page-header activities-header"><div><span class="eyebrow">ACTIVIDAD DE APRENDIZAJE · 15 RESPUESTAS</span><h1>Actividades resueltas.</h1><p>Respuestas modelo argumentadas. Úsalas para contrastar tu razonamiento, no para copiar sin comprender.</p></div><a href="/[11-1]%20BDA%20-%20Clase.pdf" target="_blank" class="outline-button">Abrir PDF fuente ↗</a></header>
-        <nav class="phase-nav">
-          <a v-for="(phase, i) in activities" :key="phase.phase" :href="'#phase-' + i"><span>0{{ i + 1 }}</span>{{ phase.phase.split('·')[1] }}</a>
-        </nav>
-        <section v-for="(phase, pi) in activities" :id="'phase-' + pi" :key="phase.phase" class="activity-phase">
-          <div class="phase-heading"><span>0{{ pi + 1 }}</span><div><span class="eyebrow">{{ phase.phase.split('·')[0] }}</span><h2>{{ phase.phase.split('·')[1] }}</h2></div></div>
-          <details v-for="(item, i) in phase.items" :key="item[0]" class="activity-item">
-            <summary><span>{{ String(i + 1).padStart(2, '0') }}</span><strong>{{ item[0] }}</strong><b>+</b></summary>
-            <div><span class="eyebrow">RESPUESTA MODELO</span><p>{{ item[1] }}</p><div class="answer-tip"><strong>Para elevar la respuesta:</strong> agrega un ejemplo propio y explicita qué garantía se sacrifica o qué riesgo se controla.</div></div>
-          </details>
-        </section>
-      </section>
+      <SummaryView
+        v-if="tab === 'resumen'"
+        :topics="topics"
+        :completed="completed"
+        :simulation="simulation"
+        :logs="logs"
+        :flash-question="flashcards[0]!.q"
+        @select-tab="selectTab"
+        @select-topic="toggleTopic"
+        @simulate="runSimulation"
+      />
+      <TopicsView
+        v-else-if="tab === 'temas'"
+        :topics="topics"
+        :active-topic="activeTopic"
+        :completed="completed"
+        @select-topic="activeTopic = $event"
+        @toggle-complete="markComplete"
+      />
+      <PracticeView
+        v-else-if="tab === 'practicar'"
+        :flashcards="flashcards"
+        :flash-index="flashIndex"
+        :flash-revealed="flashRevealed"
+        :streak="streak"
+        :quiz-questions="quizQuestions"
+        :quiz-started="quizStarted"
+        :quiz-finished="quizFinished"
+        :quiz-index="quizIndex"
+        :quiz-answers="quizAnswers"
+        :quiz-score="quizScore"
+        @toggle-flash="flashRevealed = !flashRevealed"
+        @next-flash="nextFlash"
+        @start-quiz="startQuiz"
+        @answer-quiz="answerQuiz"
+        @select-quiz="quizIndex = $event"
+        @finish-quiz="finishQuiz"
+      />
+      <ActivitiesView v-else :activities="activities" />
     </main>
   </div>
 </template>
