@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ClusterSimulator from './ClusterSimulator.vue'
 
-type Tab = 'resumen' | 'temas' | 'practicar' | 'actividades'
+type Tab = 'resumen' | 'temas' | 'tema12' | 'practicar' | 'quiz12' | 'actividades' | 'actividades12'
 type Simulation = 'normal' | 'fallo' | 'particion' | 'recuperado'
 interface Topic { index: string; title: string; goal: string; icon: string }
 

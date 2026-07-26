@@ -12,7 +12,7 @@ defineEmits<{ selectTopic: [index: number]; toggleComplete: [index: number] }>()
 
 <template>
   <section class="page">
-    <header class="page-header"><span class="eyebrow">REPOSITORIO CONCEPTUAL · 06 MÓDULOS</span><h1>Entender antes de memorizar.</h1><p>Cada tema conecta mecanismo, aplicación, caso límite y trampa de examen.</p></header>
+    <header class="page-header"><span class="eyebrow">TEMA 11 · REPOSITORIO CONCEPTUAL · 06 MÓDULOS</span><h1>Entender antes de memorizar.</h1><p>Cada tema conecta mecanismo, aplicación, caso límite y trampa de examen.</p></header>
     <div class="topic-layout">
       <aside class="topic-index">
         <button v-for="(topic, i) in topics" :key="topic.title" :class="{ active: activeTopic === i }" @click="$emit('selectTopic', i)"><span>{{ topic.index }}</span>{{ topic.title }}</button>

@@ -5,7 +5,7 @@ defineProps<{ activities: ActivityPhase[] }>()
 
 <template>
   <section class="page">
-    <header class="page-header activities-header"><div><span class="eyebrow">ACTIVIDAD DE APRENDIZAJE · 15 RESPUESTAS</span><h1>Actividades resueltas.</h1><p>Respuestas modelo argumentadas. Úsalas para contrastar tu razonamiento, no para copiar sin comprender.</p></div><a href="/[11-1]%20BDA%20-%20Clase.pdf" target="_blank" class="outline-button">Abrir PDF fuente ↗</a></header>
+    <header class="page-header activities-header"><div><span class="eyebrow">TEMA 11 · ACTIVIDAD DE APRENDIZAJE · 15 RESPUESTAS</span><h1>Actividades del Tema 11.</h1><p>Respuestas modelo sobre escalabilidad, consistencia, bloqueos, tolerancia a fallos y pruebas distribuidas.</p></div><a href="/[11-1]%20BDA%20-%20Clase.pdf" target="_blank" class="outline-button">Abrir PDF Tema 11 ↗</a></header>
     <nav class="phase-nav">
       <a v-for="(phase, i) in activities" :key="phase.phase" :href="'#phase-' + i"><span>0{{ i + 1 }}</span>{{ phase.phase.split('·')[1] }}</a>
     </nav>

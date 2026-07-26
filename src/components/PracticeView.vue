@@ -15,7 +15,7 @@ defineEmits<{
 
 <template>
   <section class="page">
-    <header class="page-header"><span class="eyebrow">ACTIVE RECALL · DIFICULTAD ADAPTATIVA</span><h1>Practica el razonamiento,<br>no el reconocimiento.</h1><p>Intenta responder en voz alta antes de revelar la solución.</p></header>
+    <header class="page-header"><span class="eyebrow">QUIZ TEMA 11 · ACTIVE RECALL</span><h1>Practica el razonamiento,<br>no el reconocimiento.</h1><p>Flashcards y simulacro avanzado de los conceptos del Tema 11.</p></header>
     <div class="practice-layout">
       <div>
         <div class="practice-meta"><span>FLASHCARD {{ flashIndex + 1 }} / {{ flashcards.length }}</span><span>RACHA: {{ streak }}</span><span>{{ flashcards[flashIndex]!.level }}</span></div>
@@ -45,11 +45,11 @@ defineEmits<{
           <button v-if="quizIndex < quizQuestions.length - 1" :disabled="quizAnswers[quizIndex] === null" @click="$emit('selectQuiz', quizIndex + 1)">Siguiente →</button>
           <button v-else class="finish" :disabled="quizAnswers.some(answer => answer === null)" @click="$emit('finishQuiz')">Finalizar</button>
         </div>
-        <p v-if="quizAnswers.some(answer => answer === null) && quizIndex === quizQuestions.length - 1" class="quiz-warning">Debes responder las 20 preguntas antes de finalizar.</p>
+        <p v-if="quizAnswers.some(answer => answer === null) && quizIndex === quizQuestions.length - 1" class="quiz-warning">Debes responder todas las preguntas antes de finalizar.</p>
       </div>
       <div v-else class="quiz-results">
         <header>
-          <span class="eyebrow">RESULTADO DEL SIMULACRO</span><div class="score-ring"><strong>{{ quizScore }}</strong><span>/ 20</span></div>
+          <span class="eyebrow">RESULTADO · QUIZ TEMA 11</span><div class="score-ring"><strong>{{ quizScore }}</strong><span>/ {{ quizQuestions.length }}</span></div>
           <h2>{{ quizScore >= 17 ? 'Dominio sólido' : quizScore >= 13 ? 'Buen razonamiento, con fisuras' : quizScore >= 10 ? 'Comprensión todavía inestable' : 'Necesitas reconstruir los fundamentos' }}</h2>
           <p>{{ Math.round((quizScore / quizQuestions.length) * 100) }}% de precisión. Revisa especialmente las preguntas falladas y explica por qué cada distractor no es defendible.</p>
           <button class="outline-button" @click="$emit('startQuiz')">Reintentar simulacro ↻</button>

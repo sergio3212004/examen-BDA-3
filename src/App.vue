@@ -5,8 +5,11 @@ import AppSidebar from './components/AppSidebar.vue'
 import PracticeView from './components/PracticeView.vue'
 import SummaryView from './components/SummaryView.vue'
 import TopicsView from './components/TopicsView.vue'
+import Topic12View from './components/Topic12View.vue'
+import Topic12Activities from './components/Topic12Activities.vue'
+import Topic12Quiz from './components/Topic12Quiz.vue'
 
-type Tab = 'resumen' | 'temas' | 'practicar' | 'actividades'
+type Tab = 'resumen' | 'temas' | 'tema12' | 'practicar' | 'quiz12' | 'actividades' | 'actividades12'
 type Simulation = 'normal' | 'fallo' | 'particion' | 'recuperado'
 
 const tab = ref<Tab>('resumen')
@@ -270,7 +273,16 @@ watch(completed, (value) => localStorage.setItem('bda-study-progress', JSON.stri
         @select-quiz="quizIndex = $event"
         @finish-quiz="finishQuiz"
       />
-      <ActivitiesView v-else :activities="activities" />
+      <Topic12Quiz v-else-if="tab === 'quiz12'" />
+      <ActivitiesView v-else-if="tab === 'actividades'" :activities="activities" />
+      <section v-else-if="tab === 'actividades12'" class="page topic12-page">
+        <header class="page-header activities-header">
+          <div><span class="eyebrow">TEMA 12 · ACTIVIDAD DE APRENDIZAJE</span><h1>Actividades del ecosistema Big Data.</h1><p>Respuestas argumentadas sobre Hadoop, Spark, streaming, Kafka y motores SQL distribuidos.</p></div>
+          <a href="/[12-1]%20BDA%20-%20Clase.pdf" target="_blank" class="outline-button">Abrir PDF Tema 12 ↗</a>
+        </header>
+        <Topic12Activities />
+      </section>
+      <Topic12View v-else />
     </main>
   </div>
 </template>

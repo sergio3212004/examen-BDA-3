@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type Tab = 'resumen' | 'temas' | 'practicar' | 'actividades'
+type Tab = 'resumen' | 'temas' | 'tema12' | 'practicar' | 'quiz12' | 'actividades' | 'actividades12'
 
 defineProps<{
   activeTab: Tab
@@ -12,9 +12,12 @@ defineEmits<{ select: [tab: Tab] }>()
 
 const navigation: { tab: Tab; icon: string; label: string }[] = [
   { tab: 'resumen', icon: '⌂', label: 'Resumen' },
-  { tab: 'temas', icon: '▦', label: 'Temas' },
-  { tab: 'practicar', icon: '✎', label: 'Practicar' },
-  { tab: 'actividades', icon: '✓', label: 'Actividades' },
+  { tab: 'temas', icon: '11', label: 'Tema 11' },
+  { tab: 'tema12', icon: '12', label: 'Tema 12' },
+  { tab: 'practicar', icon: '?11', label: 'Quiz Tema 11' },
+  { tab: 'quiz12', icon: '?12', label: 'Quiz Tema 12' },
+  { tab: 'actividades', icon: '✓11', label: 'Actividad T11' },
+  { tab: 'actividades12', icon: '✓12', label: 'Actividad T12' },
 ]
 </script>
 
