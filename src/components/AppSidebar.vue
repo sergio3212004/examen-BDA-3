@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type Tab = 'resumen' | 'temas' | 'tema12'
+type Tab = 'resumen' | 'temas' | 'tema12' | 'tema14'
 
 defineProps<{
   activeTab: Tab
@@ -14,6 +14,7 @@ const navigation: { tab: Tab; icon: string; label: string }[] = [
   { tab: 'resumen', icon: '⌂', label: 'Resumen' },
   { tab: 'temas', icon: '11', label: 'Tema 11' },
   { tab: 'tema12', icon: '12', label: 'Tema 12' },
+  { tab: 'tema14', icon: '14', label: 'Tema 14' },
 ]
 </script>
 

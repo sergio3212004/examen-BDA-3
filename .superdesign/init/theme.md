@@ -1,53 +1,23 @@
-# Theme
+# Theme tokens
 
 ## Compact token summary
 
-- Framework: Vue 3.5 + Vite 8; vanilla global CSS; no component library.
-- Colors: text `#6b6375`, heading `#08060d`, background `#fff`, border `#e5e4e7`, accent `#aa3bff`.
-- Dark colors: text `#9ca3af`, heading `#f3f4f6`, background `#16171d`, border `#2e303a`, accent `#c084fc`.
-- Fonts: system UI sans; `ui-monospace` for code.
-- Type: root 18px/145%, h1 56px, h2 24px; at <=1024px root 16px, h1 36px, h2 20px.
-- Radius: 4–6px. Shadow: standard soft 10px/15px elevation.
-- Breakpoint: `1024px`.
-- Current tokens belong to the generic starter and may be replaced for the new study product.
+- Fonts: Inter for UI/body, Lora for headings/editorial emphasis, IBM Plex Mono for labels, indices, status and code-like metadata.
+- Core colors: ink `#17231d`, muted `#66726b`, paper `#f4f1e8`, surface `#fffefa`, line `#d8d3c6`.
+- Semantic accents: forest `#1f5c45` / soft `#dce9e1`; amber `#c97a32` / soft `#f5e4d2`; blue `#315d72` / soft `#dde9ed`.
+- Layout: fixed 248px sidebar on desktop, centered content up to 1280px, page padding 48px/40px/80px.
+- Radius: 4–10px, restrained and editorial. Shadows are rare and reserved for active animated states.
+- Breakpoints: 1000px for sidebar → top bar and layout collapse; 680px for single-column mobile.
+- Motion: 220–350ms transitions, small translate/scale/fade; all disabled under `prefers-reduced-motion`.
 
-## Raw sources
-
-### `src/style.css`
+## Raw source
 
 ```css
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow: rgba(0,0,0,.1) 0 10px 15px -3px, rgba(0,0,0,.05) 0 4px 6px -2px;
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-  font: 18px/145% var(--sans);
-  color: var(--text);
-  background: var(--bg);
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192,132,252,.15);
-    --accent-border: rgba(192,132,252,.5);
-    --social-bg: rgba(47,48,58,.5);
-  }
-}
-body { margin: 0; }
-#app { width: 1126px; max-width: 100%; margin: 0 auto; min-height: 100svh; }
-@media (max-width: 1024px) { :root { font-size: 16px; } }
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,500;0,600;1,500&display=swap');
+
+:root{--ink:#17231d;--muted:#66726b;--paper:#f4f1e8;--surface:#fffefa;--line:#d8d3c6;--forest:#1f5c45;--forest-soft:#dce9e1;--amber:#c97a32;--amber-soft:#f5e4d2;--blue:#315d72;--blue-soft:#dde9ed;font-family:Inter,system-ui,sans-serif;color:var(--ink);background:var(--paper);font-synthesis:none;text-rendering:optimizeLegibility}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper)}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 ```
+
+Complete stylesheet: `src/style.css`.

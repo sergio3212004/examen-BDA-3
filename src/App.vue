@@ -8,14 +8,18 @@ import TopicsView from './components/TopicsView.vue'
 import Topic12View from './components/Topic12View.vue'
 import Topic12Activities from './components/Topic12Activities.vue'
 import Topic12Quiz from './components/Topic12Quiz.vue'
+import Topic14View from './components/Topic14View.vue'
+import Topic14Quiz from './components/Topic14Quiz.vue'
+import Topic14Activities from './components/Topic14Activities.vue'
 
-type Tab = 'resumen' | 'temas' | 'tema12'
+type Tab = 'resumen' | 'temas' | 'tema12' | 'tema14'
 type ThemeSection = 'contenido' | 'quiz' | 'actividades'
 type Simulation = 'normal' | 'fallo' | 'particion' | 'recuperado'
 
 const tab = ref<Tab>('resumen')
 const theme11Section = ref<ThemeSection>('contenido')
 const theme12Section = ref<ThemeSection>('contenido')
+const theme14Section = ref<ThemeSection>('contenido')
 const simulation = ref<Simulation>('normal')
 const activeTopic = ref(0)
 const flashIndex = ref(0)
@@ -291,7 +295,7 @@ watch(completed, (value) => localStorage.setItem('bda-study-progress', JSON.stri
         <PracticeView v-else-if="theme11Section === 'quiz'" :flashcards="flashcards" :flash-index="flashIndex" :flash-revealed="flashRevealed" :streak="streak" :quiz-questions="quizQuestions" :quiz-started="quizStarted" :quiz-finished="quizFinished" :quiz-index="quizIndex" :quiz-answers="quizAnswers" :quiz-score="quizScore" @toggle-flash="flashRevealed = !flashRevealed" @next-flash="nextFlash" @start-quiz="startQuiz" @answer-quiz="answerQuiz" @select-quiz="quizIndex = $event" @finish-quiz="finishQuiz" />
         <ActivitiesView v-else :activities="activities" />
       </div>
-      <div v-else class="theme-workspace topic12-page">
+      <div v-else-if="tab === 'tema12'" class="theme-workspace topic12-page">
         <nav class="theme-workspace-nav topic12-nav" aria-label="Módulos del Tema 12">
           <div><span>TEMA</span><strong>12</strong></div>
           <button :class="{ active: theme12Section === 'contenido' }" @click="theme12Section = 'contenido'">Contenido</button>
@@ -304,6 +308,17 @@ watch(completed, (value) => localStorage.setItem('bda-study-progress', JSON.stri
           <header class="page-header activities-header"><div><span class="eyebrow">TEMA 12 · ACTIVIDAD DE APRENDIZAJE</span><h1>Actividades del ecosistema Big Data.</h1><p>Respuestas argumentadas sobre Hadoop, Spark, streaming, Kafka y motores SQL distribuidos.</p></div><a href="/[12-1]%20BDA%20-%20Clase.pdf" target="_blank" class="outline-button">Abrir PDF Tema 12 ↗</a></header>
           <Topic12Activities />
         </section>
+      </div>
+      <div v-else class="theme-workspace topic14-workspace">
+        <nav class="theme-workspace-nav topic14-nav" aria-label="Módulos del Tema 14">
+          <div><span>TEMA</span><strong>14</strong></div>
+          <button :class="{ active: theme14Section === 'contenido' }" @click="theme14Section = 'contenido'">Contenido</button>
+          <button :class="{ active: theme14Section === 'quiz' }" @click="theme14Section = 'quiz'">Quiz</button>
+          <button :class="{ active: theme14Section === 'actividades' }" @click="theme14Section = 'actividades'">Actividades</button>
+        </nav>
+        <Topic14View v-if="theme14Section === 'contenido'" />
+        <Topic14Quiz v-else-if="theme14Section === 'quiz'" />
+        <Topic14Activities v-else />
       </div>
     </main>
   </div>

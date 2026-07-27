@@ -1,85 +1,49 @@
-# BDA Study Lab — Design system
+# BDA Study Lab — design system
 
-## Product and learning model
+## Product and job to be done
 
-BDA Study Lab is a Spanish-language responsive study workspace for an Ingeniería Informática student preparing for a deliberately difficult, technical exam. It is not a passive summary page. The interface must support:
+BDA Study Lab is an exam-preparation SPA for advanced database coursework. It translates lecture PDFs into rigorous, interactive study modules. Topic 14 introduces Natural Language Processing (PLN/NLP) faithfully to the provided 30-slide lecture while expanding definitions, contrasts, examples, edge cases, ethical risks and high-difficulty exam reasoning.
 
-- progressive study by topic;
-- conceptual synthesis plus expansions, examples, applications and edge cases;
-- active recall with revealable answers;
-- high-difficulty, technically worded analysis questions;
-- visual comparison of trade-offs;
-- a separate, clearly labeled section containing complete answers to every learning activity in the source PDF;
-- local progress and completion states;
-- focused reading on desktop and comfortable single-column study on mobile.
+## Information architecture for Topic 14
 
-Core subject matter: horizontal scalability, large-scale distributed data processing, mash-ups, RDBMS vs NoSQL, cost-based control optimization (CBoC), distributed files/tables/locks, fault tolerance, active/standby failover, redundancy and network topology, large-scale system testing, environment automation, high-volume data ingestion, observability and validation.
+The topic workspace has three tabs:
 
-## Information architecture
+1. **Contenido** — editorial introduction, the four NLP stages, application map, paradigm comparison, animated end-to-end pipeline, limitations/ethics and exam synthesis.
+2. **Quiz** — difficult questions with immediate explanations and a final review.
+3. **Actividades** — the PDF’s three phases: individual research, critical group debate and group synthesis.
 
-One continuous application shell with four primary views/tabs:
+The content screen should include:
 
-1. `Resumen`: learning dashboard, progress, learning objectives, concept map and recommended next step.
-2. `Temas`: six expandable learning modules with synthesis, deep explanation, examples, “why it matters,” exam traps and mini-checks.
-3. `Practicar`: flashcards, scenario questions and difficult analysis questions with hidden answers and self-assessment.
-4. `Actividades resueltas`: the 15 source questions grouped into Autoaprendizaje, Debate crítico and Reflexión, each with structured model answers.
+- A clear hero that states NLP as the bridge between unstructured human language and computational representations.
+- An animated sentence-analysis pipeline: raw phrase → lexical tokenization → syntactic relations → semantic/contextual interpretation → task-specific output.
+- A selectable application map covering task automation, document processing, translation, text mining/sentiment, semantic search and content generation.
+- A comparison matrix for rule-based, statistical and deep-learning NLP.
+- An interactive “same sentence, three paradigms” laboratory.
+- A second flow aligned with the lecture: processing → extraction → analysis → training, with a clarification that training is normally an offline model-development lifecycle rather than a mandatory per-request step.
+- High-difficulty examination notes: ambiguity, polysemy, negation, sarcasm, cultural context, distribution shift, hallucination, bias, privacy and explainability.
+- Direct access to the source PDF.
 
-A persistent desktop sidebar becomes a compact top bar plus horizontal tab row on small screens. Include a small visible progress indicator and “Continuar estudiando” action.
+## Visual language
 
-## Visual direction
+Use only the existing system:
 
-Academic editorial workspace with a restrained technical feel: “annotated engineering notebook meets modern data observability dashboard.” Avoid generic SaaS gradients, playful gamification, neon, glassmorphism and cartoon imagery.
+- `#17231d` ink, `#66726b` muted, `#f4f1e8` paper, `#fffefa` surface, `#d8d3c6` line.
+- Topic 14 accent: use the existing blue `#315d72` and blue-soft `#dde9ed`; forest remains success/action and amber remains warning/trap.
+- Inter for UI and prose, Lora for headings, IBM Plex Mono for labels and technical markers.
+- 248px desktop sidebar; workspace content centered up to 1280px; cards with 6–10px radius and thin borders.
+- Avoid gradients, glassmorphism, excessive shadows and decorative stock imagery. Prefer diagrams made from CSS boxes, connectors, arrows and compact annotations.
 
-Use only these tokens:
+## Motion and interaction
 
-- `--ink: #17231D` — primary text and dark controls
-- `--muted: #66726B` — secondary text
-- `--paper: #F4F1E8` — page canvas
-- `--surface: #FFFEFA` — cards/readers
-- `--line: #D8D3C6` — borders and rules
-- `--forest: #1F5C45` — main brand/accent
-- `--forest-soft: #DCE9E1` — selected and success backgrounds
-- `--amber: #C97A32` — warnings, exam traps, difficulty
-- `--amber-soft: #F5E4D2`
-- `--blue: #315D72` — distributed systems diagrams and concept links
-- `--blue-soft: #DDE9ED`
+- 220–350ms opacity/translate/scale transitions.
+- Animated pipelines reveal one stage at a time and always provide explicit controls.
+- Hover is supplementary; all information must be reachable by click and keyboard.
+- Respect `prefers-reduced-motion: reduce`.
+- Animations must explain a transformation or relationship, never be decorative.
 
-Typography:
+## Responsive and accessibility requirements
 
-- UI and body: `Inter`, fallback `system-ui, sans-serif`.
-- Editorial headings: `Lora`, fallback `Georgia, serif`.
-- Technical labels and small metadata: `IBM Plex Mono`, fallback `ui-monospace, monospace`.
-- Body 16px/1.65; compact metadata 12px/1.4; h1 44–52px desktop and 34px mobile; h2 28–34px.
-
-Layout and shape:
-
-- Desktop max content width 1440px; sidebar 248px; reading column ideally 760–860px.
-- 8px spacing base; frequent spacing 8, 12, 16, 24, 32, 48.
-- Radius 6px for controls, 10px for cards; cards use visible 1px borders rather than floating shadows.
-- Shadow only for overlays: `0 16px 40px rgba(23,35,29,.12)`.
-- Use thin grid lines, section indices such as `01 / 06`, small uppercase mono labels and restrained highlighted annotations.
-
-## Components and states
-
-- Sidebar logo mark: simple database-cylinder line icon paired with `BDA / STUDY LAB`.
-- Navigation items have icon, label and active left rule/fill.
-- Topic cards show index, title, short learning goal, difficulty chip and completion.
-- Reader sections use clear anchors: `Idea central`, `Cómo funciona`, `Ejemplo aplicado`, `Caso límite`, `Trampa de examen`.
-- Comparison tables must remain horizontally scrollable on small screens.
-- Flashcards flip or reveal via an explicit button and remain keyboard accessible.
-- Question answers start hidden; after reveal, show `Respuesta modelo`, `Razonamiento` and `Criterio de evaluación`.
-- Controls need hover, focus-visible, active and disabled states. Minimum touch target 44px.
-
-## Motion
-
-Use 160–220ms ease-out transitions for accordions, tabs, progress and answer reveals. Respect `prefers-reduced-motion`. No decorative looping animation.
-
-## Responsive behavior
-
-- >=1100px: fixed left sidebar, dense dashboard grid and two-column supporting content.
-- 720–1099px: compact top navigation, two-column cards where space permits.
-- <720px: single column, horizontally scrollable tabs/tables, sticky bottom “Continuar” action only when helpful.
-
-## Accessibility
-
-WCAG AA contrast, semantic headings, labels on icon buttons, visible focus rings, no color-only state communication and properly expanded/collapsed ARIA state.
+- Collapse the sidebar into the existing horizontal navigation below 1000px.
+- Collapse comparison tables and diagrams safely below 680px.
+- Keep minimum 44px interactive targets, visible focus states, semantic headings, descriptive labels and sufficient contrast.
+- Do not encode correctness or state by color alone.
