@@ -8,17 +8,21 @@ import TopicsView from './components/TopicsView.vue'
 import Topic12View from './components/Topic12View.vue'
 import Topic12Activities from './components/Topic12Activities.vue'
 import Topic12Quiz from './components/Topic12Quiz.vue'
+import Topic13View from './components/Topic13View.vue'
+import Topic13Quiz from './components/Topic13Quiz.vue'
+import Topic13Activities from './components/Topic13Activities.vue'
 import Topic14View from './components/Topic14View.vue'
 import Topic14Quiz from './components/Topic14Quiz.vue'
 import Topic14Activities from './components/Topic14Activities.vue'
 
-type Tab = 'resumen' | 'temas' | 'tema12' | 'tema14'
+type Tab = 'resumen' | 'temas' | 'tema12' | 'tema13' | 'tema14'
 type ThemeSection = 'contenido' | 'quiz' | 'actividades'
 type Simulation = 'normal' | 'fallo' | 'particion' | 'recuperado'
 
 const tab = ref<Tab>('resumen')
 const theme11Section = ref<ThemeSection>('contenido')
 const theme12Section = ref<ThemeSection>('contenido')
+const theme13Section = ref<ThemeSection>('contenido')
 const theme14Section = ref<ThemeSection>('contenido')
 const simulation = ref<Simulation>('normal')
 const activeTopic = ref(0)
@@ -308,6 +312,17 @@ watch(completed, (value) => localStorage.setItem('bda-study-progress', JSON.stri
           <header class="page-header activities-header"><div><span class="eyebrow">TEMA 12 · ACTIVIDAD DE APRENDIZAJE</span><h1>Actividades del ecosistema Big Data.</h1><p>Respuestas argumentadas sobre Hadoop, Spark, streaming, Kafka y motores SQL distribuidos.</p></div><a href="/[12-1]%20BDA%20-%20Clase.pdf" target="_blank" class="outline-button">Abrir PDF Tema 12 ↗</a></header>
           <Topic12Activities />
         </section>
+      </div>
+      <div v-else-if="tab === 'tema13'" class="theme-workspace topic13-workspace">
+        <nav class="theme-workspace-nav topic13-nav" aria-label="Módulos del Tema 13">
+          <div><span>TEMA</span><strong>13</strong></div>
+          <button :class="{ active: theme13Section === 'contenido' }" @click="theme13Section = 'contenido'">Contenido</button>
+          <button :class="{ active: theme13Section === 'quiz' }" @click="theme13Section = 'quiz'">Quiz</button>
+          <button :class="{ active: theme13Section === 'actividades' }" @click="theme13Section = 'actividades'">Actividades</button>
+        </nav>
+        <Topic13View v-if="theme13Section === 'contenido'" />
+        <Topic13Quiz v-else-if="theme13Section === 'quiz'" />
+        <Topic13Activities v-else />
       </div>
       <div v-else class="theme-workspace topic14-workspace">
         <nav class="theme-workspace-nav topic14-nav" aria-label="Módulos del Tema 14">
