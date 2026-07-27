@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import Topic12DeepLab from './Topic12DeepLab.vue'
+import FrameworkEncyclopedia from './FrameworkEncyclopedia.vue'
 
 type Category = 'todos' | 'batch' | 'stream' | 'mensajeria' | 'sql' | 'ml'
 
@@ -54,6 +56,7 @@ function selectCategory(value: Category) {
       <p>Hadoop y Spark cubren procesamiento masivo; Flink, Storm y Samza reaccionan a flujos; Kafka transporta y conserva eventos; Drill y Presto consultan fuentes heterogéneas; Calcite optimiza planes; SAMOA lleva aprendizaje automático a streams. La pregunta difícil no es “¿cuál es mejor?”, sino qué garantías de latencia, estado, recuperación, esquema y costo exige cada caso.</p>
       <div class="summary-rule"><span>REGLA DE EXAMEN</span><strong>Fuente → garantía → estado → tiempo → recuperación → sumidero</strong></div>
     </section>
+    <Topic12DeepLab />
 
     <section class="framework-explorer">
       <div class="section-heading"><div><span class="eyebrow">MAPA INTERACTIVO</span><h2>Explora el ecosistema por función.</h2></div></div>
@@ -80,6 +83,7 @@ function selectCategory(value: Category) {
         </Transition>
       </div>
     </section>
+    <FrameworkEncyclopedia />
 
     <section class="architecture-lab">
       <div class="section-heading"><div><span class="eyebrow">LABORATORIO DE DECISIONES</span><h2>Diseña el pipeline según la carga.</h2></div></div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import MashupSimulator from './MashupSimulator.vue'
+import CbocDeepDive from './CbocDeepDive.vue'
 
 interface Topic {
   index: string; title: string; goal: string; summary: string
@@ -26,6 +27,7 @@ defineEmits<{ selectTopic: [index: number]; toggleComplete: [index: number] }>()
         </div>
         <div class="concept-block trap"><span>⚠ TRAMPA DE EXAMEN</span><p>{{ topics[activeTopic]!.trap }}</p></div>
         <MashupSimulator v-if="activeTopic === 1" />
+        <CbocDeepDive v-if="activeTopic === 2 || activeTopic === 4" />
         <div class="analysis-pattern">
           <span class="eyebrow">PLANTILLA PARA RESPONDER AL PROFESOR</span><h3>Contexto → mecanismo → trade-off → consecuencia</h3>
           <ol><li>Define la condición concreta del escenario.</li><li>Nombra el mecanismo distribuido que interviene.</li><li>Explica qué garantía se gana y cuál se debilita.</li><li>Cierra con una consecuencia observable o una condición límite.</li></ol>

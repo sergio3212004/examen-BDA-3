@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ClusterSimulator from './ClusterSimulator.vue'
 
-type Tab = 'resumen' | 'temas' | 'tema12' | 'practicar' | 'quiz12' | 'actividades' | 'actividades12'
+type Tab = 'resumen' | 'temas' | 'tema12'
 type Simulation = 'normal' | 'fallo' | 'particion' | 'recuperado'
 interface Topic { index: string; title: string; goal: string; icon: string }
 
@@ -43,11 +43,11 @@ defineEmits<{
     <section class="dashboard-bottom">
       <div class="quick-card">
         <span class="eyebrow">RECUPERACIÓN ACTIVA</span><h2>¿Puedes explicarlo sin mirar?</h2>
-        <p>{{ flashQuestion }}</p><button class="primary" @click="$emit('selectTab', 'practicar')">Practicar ahora →</button>
+        <p>{{ flashQuestion }}</p><button class="primary" @click="$emit('selectTab', 'temas')">Ir al Tema 11 →</button>
       </div>
-      <button class="activities-card" @click="$emit('selectTab', 'actividades')">
-        <span class="eyebrow">APARTADO SOLICITADO</span><strong>15 actividades resueltas</strong>
-        <p>Autoaprendizaje, debate crítico y reflexión con respuestas modelo.</p><span>ABRIR GUÍAS →</span>
+      <button class="activities-card" @click="$emit('selectTab', 'tema12')">
+        <span class="eyebrow">NUEVO MÓDULO</span><strong>Tema 12 · Ecosistema Big Data</strong>
+        <p>Contenido, quiz avanzado y actividades resueltas en un solo espacio.</p><span>ABRIR TEMA 12 →</span>
       </button>
     </section>
   </section>

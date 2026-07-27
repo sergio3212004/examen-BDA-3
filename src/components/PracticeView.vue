@@ -29,7 +29,7 @@ defineEmits<{
     </div>
     <section class="quiz-section">
       <div v-if="!quizStarted" class="quiz-intro">
-        <div><span class="eyebrow">SIMULACRO DE ALTA DIFICULTAD</span><h2>20 preguntas para detectar si realmente entendiste.</h2><p>Las alternativas incorrectas son técnicamente plausibles. Lee los calificadores, identifica el dominio de fallo y decide qué garantía está realmente en juego.</p><ul><li>20 casos de análisis</li><li>Una sola alternativa más defendible</li><li>Explicación razonada al finalizar</li></ul></div>
+        <div><span class="eyebrow">SIMULACRO DE ALTA DIFICULTAD</span><h2>{{ quizQuestions.length }} preguntas para detectar si realmente entendiste.</h2><p>Las alternativas incorrectas son técnicamente plausibles. Cada respuesta se califica inmediatamente y muestra el fundamento.</p><ul><li>{{ quizQuestions.length }} casos de análisis</li><li>Feedback inmediato fundamentado</li><li>Revisión completa al finalizar</li></ul></div>
         <button class="primary quiz-start" @click="$emit('startQuiz')">Iniciar simulacro <span>→</span></button>
       </div>
       <div v-else-if="!quizFinished" class="quiz-runner">
@@ -38,6 +38,13 @@ defineEmits<{
         <article class="quiz-card">
           <span class="difficulty">DIFICULTAD ALTA · ANÁLISIS</span><h3>{{ quizQuestions[quizIndex]!.q }}</h3>
           <div class="quiz-options"><button v-for="(option, oi) in quizQuestions[quizIndex]!.options" :key="option" :class="{ selected: quizAnswers[quizIndex] === oi }" @click="$emit('answerQuiz', oi)"><span>{{ String.fromCharCode(65 + oi) }}</span><strong>{{ option }}</strong></button></div>
+          <Transition name="instant-feedback">
+            <div v-if="quizAnswers[quizIndex] !== null" class="instant-feedback" :class="quizAnswers[quizIndex] === quizQuestions[quizIndex]!.correct ? 'is-correct' : 'is-wrong'">
+              <strong>{{ quizAnswers[quizIndex] === quizQuestions[quizIndex]!.correct ? '✓ Respuesta correcta' : '× Respuesta incorrecta' }}</strong>
+              <p v-if="quizAnswers[quizIndex] !== quizQuestions[quizIndex]!.correct"><span>La respuesta correcta es:</span> {{ quizQuestions[quizIndex]!.options[quizQuestions[quizIndex]!.correct] }}</p>
+              <p><span>Fundamento:</span> {{ quizQuestions[quizIndex]!.explanation }}</p>
+            </div>
+          </Transition>
         </article>
         <div class="quiz-nav">
           <button :disabled="quizIndex === 0" @click="$emit('selectQuiz', quizIndex - 1)">← Anterior</button>
@@ -50,7 +57,7 @@ defineEmits<{
       <div v-else class="quiz-results">
         <header>
           <span class="eyebrow">RESULTADO · QUIZ TEMA 11</span><div class="score-ring"><strong>{{ quizScore }}</strong><span>/ {{ quizQuestions.length }}</span></div>
-          <h2>{{ quizScore >= 17 ? 'Dominio sólido' : quizScore >= 13 ? 'Buen razonamiento, con fisuras' : quizScore >= 10 ? 'Comprensión todavía inestable' : 'Necesitas reconstruir los fundamentos' }}</h2>
+          <h2>{{ quizScore / quizQuestions.length >= .85 ? 'Dominio sólido' : quizScore / quizQuestions.length >= .65 ? 'Buen razonamiento, con fisuras' : quizScore / quizQuestions.length >= .5 ? 'Comprensión todavía inestable' : 'Necesitas reconstruir los fundamentos' }}</h2>
           <p>{{ Math.round((quizScore / quizQuestions.length) * 100) }}% de precisión. Revisa especialmente las preguntas falladas y explica por qué cada distractor no es defendible.</p>
           <button class="outline-button" @click="$emit('startQuiz')">Reintentar simulacro ↻</button>
         </header>

@@ -9,10 +9,13 @@ import Topic12View from './components/Topic12View.vue'
 import Topic12Activities from './components/Topic12Activities.vue'
 import Topic12Quiz from './components/Topic12Quiz.vue'
 
-type Tab = 'resumen' | 'temas' | 'tema12' | 'practicar' | 'quiz12' | 'actividades' | 'actividades12'
+type Tab = 'resumen' | 'temas' | 'tema12'
+type ThemeSection = 'contenido' | 'quiz' | 'actividades'
 type Simulation = 'normal' | 'fallo' | 'particion' | 'recuperado'
 
 const tab = ref<Tab>('resumen')
+const theme11Section = ref<ThemeSection>('contenido')
+const theme12Section = ref<ThemeSection>('contenido')
 const simulation = ref<Simulation>('normal')
 const activeTopic = ref(0)
 const flashIndex = ref(0)
@@ -47,13 +50,13 @@ const topics = [
   },
   {
     index: '03',
-    title: 'RDBMS, NoSQL y CBoC',
-    goal: 'Analizar el costo de consistencia frente a flexibilidad y distribución.',
+    title: 'CBoC: propósito y subsistemas',
+    goal: 'Explicar para qué sirve CBoC y cómo colaboran archivos, tablas y bloqueo distribuido.',
     icon: '◫',
-    summary: 'Los RDBMS ofrecen estructura, transacciones y consistencia fuerte. NoSQL flexibiliza esquema y, según el modelo, consistencia para facilitar partición y escalado horizontal. CBoC reúne archivos, tablas y bloqueo distribuido.',
-    deep: 'NoSQL no significa “sin consistencia”: diferentes familias ofrecen garantías distintas. La decisión se basa en patrones de acceso, necesidad transaccional, distribución geográfica y tolerancia a particiones. CBoC usa un sistema de archivos distribuido, tablas distribuidas y un subsistema de bloqueo que coordina recursos y soporta la recuperación.',
-    example: 'Un catálogo global tolera que una descripción tarde segundos en converger; el débito de una cuenta requiere reglas transaccionales mucho más estrictas. Una arquitectura moderna puede usar ambos modelos.',
-    trap: 'BASE no elimina toda consistencia, y ACID no obliga a ejecutar en un único servidor.',
+    summary: 'CBoC —Optimización de Control Basado en Costos— sirve para procesar Big Data con escalabilidad horizontal y tolerancia a fallos. Combina tres subsistemas: archivos para almacenar y replicar, tablas para organizar y distribuir el acceso, y bloqueo para coordinar autoridad y recuperación.',
+    deep: 'El punto 2 parte del límite de usar solamente un RDBMS para datos masivos y heterogéneos: NoSQL flexibiliza esquema y algunas garantías para distribuir mejor. El punto 3 añade que distribuir no basta; los fallos parciales deben ser normales. CBoC separa responsabilidades para que datos, acceso y coordinación puedan escalar y recuperarse.',
+    example: 'Una plataforma almacena historiales multimedia en bloques replicados, divide su catálogo en tablas por rangos y utiliza un bloqueo distribuido para garantizar que solo un maestro coordine cambios. Si un trabajador falla, otro recupera sus réplicas; si falla el maestro, el nodo en espera adquiere autoridad.',
+    trap: 'Los tres subsistemas no son alternativas ni tres copias: resuelven almacenamiento, organización y coordinación, respectivamente.',
   },
   {
     index: '04',
@@ -127,6 +130,36 @@ const quizQuestions = [
   { area: 'Trabajadores', q: 'Cuando falla un proceso de trabajo y otro recupera sus datos, ¿qué riesgo persiste si las tareas no son idempotentes?', options: ['La recuperación puede repetir efectos ya aplicados antes del fallo.', 'La red deja automáticamente de ser un árbol.', 'El maestro en espera se elimina.', 'Los datos redundantes se vuelven relacionales.'], correct: 0, explanation: 'El maestro puede desconocer el punto exacto alcanzado. Reejecutar sin idempotencia o deduplicación puede duplicar efectos.' },
   { area: 'Observabilidad', q: '¿Por qué sincronizar relojes y conservar identificadores de correlación mejora la validación de fallos distribuidos?', options: ['Porque evita todos los fallos.', 'Porque permite reconstruir causalidad aproximada entre eventos dispersos y seguir una solicitud.', 'Porque reemplaza las métricas.', 'Porque convierte logs en bloqueos.'], correct: 1, explanation: 'La cronología y correlación permiten reconstruir secuencias entre nodos; aun así, el reloj físico no prueba causalidad perfecta.' },
   { area: 'Síntesis', q: '¿Cuál formulación representa mejor la relación entre escala y tolerancia a fallos descrita en el tema?', options: ['Al aumentar nodos, la probabilidad de cualquier fallo desaparece.', 'Más nodos elevan la probabilidad de fallos parciales, por lo que el sistema debe convertirlos en eventos ordinarios y recuperables.', 'Escalar horizontalmente hace innecesarias las pruebas.', 'La redundancia elimina toda complejidad operacional.'], correct: 1, explanation: 'A gran escala algún componente fallará con frecuencia. La arquitectura debe aislar, detectar y recuperar sin caída global.' },
+  { area: 'CBoC · propósito', q: 'Una empresa afirma que CBoC sirve únicamente para elegir el plan SQL de menor costo. Según el Tema 11, ¿qué objeción es más completa?', options: ['Es correcto porque CBoC no distribuye datos.', 'El material presenta CBoC como una plataforma con archivos, tablas y bloqueo distribuido para escalar y tolerar fallos.', 'CBoC solo es un protocolo de red.', 'CBoC reemplaza cualquier aplicación empresarial.'], correct: 1, explanation: 'En el contexto del PDF, CBoC integra tres subsistemas distribuidos. Su utilidad se analiza en almacenamiento, organización, coordinación y recuperación, no solo como optimizador SQL.' },
+  { area: 'CBoC · subsistemas', q: '¿Qué asignación de responsabilidades representa correctamente los tres subsistemas de CBoC?', options: ['Archivos coordinan liderazgo; tablas controlan switches; bloqueo almacena videos.', 'Archivos almacenan y replican; tablas organizan acceso; bloqueo coordina autoridad y recuperación.', 'Los tres realizan exactamente la misma función.', 'Tablas sustituyen archivos y bloqueo.'], correct: 1, explanation: 'Los subsistemas son complementarios: almacenamiento físico, organización lógica y coordinación distribuida.' },
+  { area: 'CBoC · diseño', q: 'Una tabla posee tres réplicas, pero dos maestros aceptan actualizaciones incompatibles. ¿Qué componente no está cumpliendo su responsabilidad?', options: ['El subsistema de bloqueo distribuido.', 'La compresión del archivo.', 'El generador de datos de prueba.', 'El conmutador central necesariamente.'], correct: 0, explanation: 'La réplica conserva copias, pero la exclusión y autoridad corresponden al bloqueo distribuido. Sin coordinación puede ocurrir split-brain.' },
+  { area: 'Figura 3 · monitoreo', q: 'En la Figura 3, ¿cuál es el objetivo principal de “(a) Alive monitoring”?', options: ['Comprimir tablas.', 'Comprobar si los procesos trabajadores continúan activos.', 'Elegir el formato de archivo.', 'Ejecutar consultas de clientes.'], correct: 1, explanation: 'El subsistema de bloqueo supervisa la vida de los trabajadores para detectar fallos y activar la secuencia de recuperación.' },
+  { area: 'Figura 3 · notificación', q: 'Después de detectar que un trabajador falló, ¿qué representa la flecha “(b) Failure notification”?', options: ['El trabajador fallido se repara solo.', 'El subsistema de bloqueo informa al maestro activo de archivos o tablas.', 'El cliente adquiere el bloqueo maestro.', 'El switch replica datos.'], correct: 1, explanation: 'La detección se convierte en una decisión coordinada cuando el fallo es comunicado al maestro responsable.' },
+  { area: 'Figura 3 · recuperación', q: '¿Qué actor emite “(c) Recovery instruction” y con qué finalidad?', options: ['El cliente ordena borrar réplicas.', 'El maestro activo ordena a un trabajador disponible recuperar datos y continuar.', 'El trabajador fallido elige al nuevo maestro.', 'El switch central crea una tabla.'], correct: 1, explanation: 'El maestro decide la reasignación y otro trabajador ejecuta la recuperación usando datos redundantes.' },
+  { area: 'Figura 3 · síntesis', q: '¿Qué conclusión se deriva de las flechas (a), (b) y (c) de la Figura 3?', options: ['El bloqueo almacena y recupera directamente todos los bloques.', 'Detección, decisión y ejecución de recuperación están separadas entre bloqueo, maestro y trabajadores.', 'Todo fallo exige intervención manual.', 'Las réplicas eliminan la necesidad de maestro.'], correct: 1, explanation: 'La figura separa supervisión/notificación, decisión de coordinación y recuperación efectiva. Esa división evita confundir responsabilidades.' },
+  { area: 'Failover maestro', q: 'El maestro activo falla. ¿Cuál secuencia respeta mejor la Figura 3?', options: ['El standby escribe antes de obtener autoridad.', 'Expira o se libera el bloqueo, el standby lo adquiere y asume como activo.', 'Todos los trabajadores se convierten en maestros.', 'Se eliminan los metadatos para evitar conflicto.'], correct: 1, explanation: 'El bloqueo exclusivo serializa la promoción: el standby solo debe actuar después de adquirir autoridad válida.' },
+  { area: 'Fallo de trabajador', q: 'Un trabajador deja de responder, pero sus datos tienen réplicas. ¿Por qué la recuperación todavía requiere al maestro?', options: ['Porque las copias no deciden qué trabajador debe continuar ni qué tarea retomar.', 'Porque el maestro contiene la única copia.', 'Porque la réplica siempre está corrupta.', 'Porque el bloqueo no detecta procesos.'], correct: 0, explanation: 'La redundancia preserva información; el maestro coordina la reasignación y el punto desde el cual debe continuar el trabajo.' },
+  { area: 'Redundancia', q: 'Tres copias están en servidores distintos bajo el mismo rack y la misma alimentación. ¿Qué riesgo permanece?', options: ['Ninguno, porque son tres procesos.', 'Un fallo del dominio compartido puede eliminar las tres copias simultáneamente.', 'Solo disminuye la velocidad del CPU.', 'El consenso deja de usar mayoría.'], correct: 1, explanation: 'La independencia debe evaluarse por dominios de fallo, no solo por cantidad de servidores.' },
+  { area: 'Red en árbol', q: '¿Por qué CBoC coloca maestros y datos redundantes bajo diferentes switches de borde?', options: ['Para que cada switch tenga la misma dirección IP.', 'Para que la caída de un switch no desconecte simultáneamente autoridad y copias necesarias.', 'Para eliminar todo tráfico de red.', 'Para evitar replicar datos.'], correct: 1, explanation: 'La colocación cruza dominios de fallo y reduce fallos correlacionados dentro de la topología en árbol.' },
+  { area: 'Partición de red', q: 'Dos ramas de red pierden comunicación. ¿Qué condición permite que una rama confirme nuevas decisiones con seguridad?', options: ['Tener el nodo con CPU más rápida.', 'Conservar un quórum y aplicar fencing frente a la rama aislada.', 'Responder primero al cliente.', 'Duplicar el timeout en ambos lados.'], correct: 1, explanation: 'El quórum evita mayorías incompatibles y el fencing impide que una autoridad obsoleta siga escribiendo.' },
+  { area: 'Lease', q: '¿Por qué un lease tiene duración limitada?', options: ['Para comprimir mensajes.', 'Para que la autoridad pueda recuperarse si el propietario desaparece sin liberar el bloqueo.', 'Para garantizar que la red nunca falle.', 'Para almacenar réplicas temporales.'], correct: 1, explanation: 'La expiración evita bloqueos huérfanos, aunque debe combinarse con fencing porque un proceso pausado puede reaparecer.' },
+  { area: 'Heartbeat', q: 'Un heartbeat llega tarde debido a una pausa del sistema operativo. ¿Qué inferencia es segura?', options: ['El nodo fue destruido físicamente.', 'Solo existe sospecha de fallo; la autoridad debe resolverse mediante lease, quórum y tokens.', 'El nodo conserva necesariamente el liderazgo.', 'Debe borrarse toda réplica.'], correct: 1, explanation: 'Un detector por timeout no distingue fallo, lentitud o partición. Por eso no basta para conceder autoridad de escritura.' },
+  { area: 'Fencing', q: 'A posee token 18 y B, nuevo maestro, token 19. ¿Qué debe hacer el recurso si A intenta escribir?', options: ['Aceptar porque A fue maestro primero.', 'Rechazar el token 18 por ser anterior al 19.', 'Aceptar ambos y reconciliar siempre.', 'Esperar indefinidamente.'], correct: 1, explanation: 'Los fencing tokens monotónicos permiten al recurso reconocer y rechazar propietarios obsoletos.' },
+  { area: 'Consenso', q: 'En cinco nodos, una decisión recibió votos de A, B y C. ¿Por qué otra mayoría no puede ser completamente independiente?', options: ['Porque toda mayoría de tres debe intersectar a la primera.', 'Porque todos los nodos tienen el mismo disco.', 'Porque solo A puede votar.', 'Porque una mayoría siempre tiene cinco miembros.'], correct: 0, explanation: 'Dos subconjuntos de tres dentro de cinco comparten al menos un nodo, preservando información entre decisiones.' },
+  { area: 'RDBMS y NoSQL', q: '¿Qué requisito favorece más un RDBMS con transacciones fuertes frente a un almacén eventualmente consistente?', options: ['Actualizar el saldo de dos cuentas manteniendo una invariante.', 'Servir recomendaciones que toleran segundos de retraso.', 'Almacenar logs sin relaciones.', 'Distribuir un catálogo de solo lectura.'], correct: 0, explanation: 'Las invariantes monetarias requieren atomicidad y aislamiento claros; la obsolescencia tolerable admite garantías más débiles.' },
+  { area: 'NoSQL', q: 'Una base NoSQL ofrece lectura de tus propias escrituras y convergencia eventual. ¿Qué demuestra?', options: ['Que BASE significa ausencia total de garantías.', 'Que pueden combinarse garantías de sesión con convergencia eventual.', 'Que toda operación es linealizable.', 'Que no existe replicación.'], correct: 1, explanation: 'La consistencia posee varios niveles. Debilitar linealizabilidad no implica abandonar todas las garantías.' },
+  { area: 'Mash-up', q: 'Una aplicación muestra clima y tráfico en dos paneles independientes sin combinarlos. ¿Por qué puede no ser todavía un mash-up valioso?', options: ['Porque no utiliza Hadoop.', 'Porque no produce una capacidad derivada mediante composición de las fuentes.', 'Porque utiliza dos API.', 'Porque contiene una interfaz gráfica.'], correct: 1, explanation: 'El valor del mash-up aparece cuando la composición crea un servicio nuevo, como recomendar rutas según clima y congestión.' },
+  { area: 'Mash-up · fallo', q: 'La API de clima no responde. ¿Qué diseño mejora la resiliencia de un mash-up de rutas?', options: ['Bloquear todo indefinidamente.', 'Definir timeout, datos cacheados y degradación explícita de la recomendación.', 'Inventar el clima actual.', 'Eliminar las otras fuentes.'], correct: 1, explanation: 'Los mash-ups heredan fallos de dependencias. Una degradación controlada mantiene servicio e informa menor confianza.' },
+  { area: 'Escalabilidad', q: 'Un trabajo tarda 100 minutos y 60 corresponden a una fase serial. ¿Por qué duplicar nodos no reducirá el tiempo a la mitad?', options: ['La parte serial limita la aceleración total.', 'Los nodos adicionales eliminan la fase serial.', 'La red siempre duplica velocidad.', 'El almacenamiento no influye.'], correct: 0, explanation: 'La sección no paralelizable fija un límite superior; además aparecen coordinación y comunicación.' },
+  { area: 'Skew', q: 'Una partición recibe 70% de los registros mientras nueve comparten el resto. ¿Qué ocurre al agregar trabajadores?', options: ['El trabajo queda automáticamente equilibrado.', 'La partición caliente puede dominar el tiempo total y dejar capacidad ociosa.', 'El consenso desaparece.', 'Cada registro se replica cero veces.'], correct: 1, explanation: 'El sesgo impide distribuir uniformemente la carga. Debe revisarse la clave, particionamiento o tratamiento de claves calientes.' },
+  { area: 'Localidad de datos', q: '¿Qué ventaja busca ejecutar una tarea cerca de los bloques que procesa?', options: ['Reducir transferencia de grandes volúmenes por la red.', 'Eliminar toda réplica.', 'Garantizar exactly-once.', 'Sustituir el maestro.'], correct: 0, explanation: 'Mover el cómputo suele ser más barato que trasladar datasets masivos a través de la red.' },
+  { area: 'Recuperación', q: 'Una tarea aplicó un cobro y falló antes de registrar su finalización. ¿Qué propiedad permite reintentarla con menor riesgo?', options: ['Idempotencia o deduplicación por identificador.', 'Mayor tamaño de archivo.', 'Menor número de logs.', 'Un heartbeat más lento.'], correct: 0, explanation: 'El resultado es incierto. Una clave idempotente evita aplicar dos veces el mismo efecto durante la recuperación.' },
+  { area: 'Pruebas · estados', q: '¿Por qué probar solo la caída completa del clúster ofrece cobertura insuficiente?', options: ['Porque los fallos parciales, retrasos y reordenamientos generan estados más difíciles.', 'Porque un clúster nunca falla.', 'Porque las salidas finales no importan.', 'Porque todas las transiciones son equivalentes.'], correct: 0, explanation: 'La complejidad distribuida surge especialmente cuando unos componentes avanzan mientras otros fallan o se aíslan.' },
+  { area: 'Pruebas · datos', q: 'Un generador crea el volumen correcto, pero distribuye claves uniformemente cuando producción tiene fuerte sesgo. ¿Qué puede ocultar?', options: ['Cuellos de botella, particiones calientes y tiempos de cola.', 'La existencia de CPU.', 'El formato del PDF.', 'La necesidad de usuarios.'], correct: 0, explanation: 'El volumen sin una distribución representativa no reproduce el comportamiento de particionamiento y carga real.' },
+  { area: 'Observabilidad', q: 'El resultado final es correcto, pero durante cinco minutos hubo dos líderes y escrituras rechazadas. ¿Por qué debe considerarse un fallo de prueba?', options: ['Porque la trayectoria violó seguridad o disponibilidad aunque el estado final convergiera.', 'Porque todo rechazo es normal.', 'Porque solo importa el último registro.', 'Porque dos líderes mejoran throughput.'], correct: 0, explanation: 'Logs, métricas y trazas revelan violaciones transitorias que una comparación final puede ocultar.' },
+  { area: 'Automatización', q: 'Puppet instala cien nodos idénticos. ¿Qué problema no resuelve por sí solo?', options: ['La repetición de configuración.', 'La elección de escenarios, oráculos y criterios de corrección.', 'La instalación automatizada.', 'La reducción de deriva.'], correct: 1, explanation: 'Infraestructura como código reproduce entornos, pero el diseño y evaluación de pruebas siguen requiriendo hipótesis y oráculos.' },
+  { area: 'Checkpoint', q: '¿Qué beneficio experimental aporta iniciar una prueba desde un checkpoint conocido?', options: ['Reproducir una condición intermedia con menos preparación y variabilidad.', 'Demostrar todos los estados posibles.', 'Eliminar la necesidad de validar.', 'Garantizar que producción es idéntica.'], correct: 0, explanation: 'Los checkpoints aceleran repeticiones comparables, pero no sustituyen cobertura ni representatividad.' },
+  { area: 'Síntesis CBoC', q: '¿Cuál explicación conecta mejor costo, escala y tolerancia a fallos en CBoC?', options: ['Usar más servidores siempre reduce costo y complejidad.', 'Servidores comunes permiten escalar, pero exigen distribución, redundancia y coordinación para convertir sus fallos en eventos recuperables.', 'La tolerancia elimina la necesidad de pruebas.', 'El bloqueo distribuido almacena todos los datos.'], correct: 1, explanation: 'El beneficio económico del escalado horizontal trae obligaciones: particionar, replicar, coordinar y probar recuperación.' },
 ]
 
 const activities = [
@@ -179,6 +212,7 @@ function selectTab(value: Tab) {
 
 function toggleTopic(index: number) {
   activeTopic.value = index
+  theme11Section.value = 'contenido'
   tab.value = 'temas'
 }
 
@@ -246,43 +280,31 @@ watch(completed, (value) => localStorage.setItem('bda-study-progress', JSON.stri
         @select-topic="toggleTopic"
         @simulate="runSimulation"
       />
-      <TopicsView
-        v-else-if="tab === 'temas'"
-        :topics="topics"
-        :active-topic="activeTopic"
-        :completed="completed"
-        @select-topic="activeTopic = $event"
-        @toggle-complete="markComplete"
-      />
-      <PracticeView
-        v-else-if="tab === 'practicar'"
-        :flashcards="flashcards"
-        :flash-index="flashIndex"
-        :flash-revealed="flashRevealed"
-        :streak="streak"
-        :quiz-questions="quizQuestions"
-        :quiz-started="quizStarted"
-        :quiz-finished="quizFinished"
-        :quiz-index="quizIndex"
-        :quiz-answers="quizAnswers"
-        :quiz-score="quizScore"
-        @toggle-flash="flashRevealed = !flashRevealed"
-        @next-flash="nextFlash"
-        @start-quiz="startQuiz"
-        @answer-quiz="answerQuiz"
-        @select-quiz="quizIndex = $event"
-        @finish-quiz="finishQuiz"
-      />
-      <Topic12Quiz v-else-if="tab === 'quiz12'" />
-      <ActivitiesView v-else-if="tab === 'actividades'" :activities="activities" />
-      <section v-else-if="tab === 'actividades12'" class="page topic12-page">
-        <header class="page-header activities-header">
-          <div><span class="eyebrow">TEMA 12 · ACTIVIDAD DE APRENDIZAJE</span><h1>Actividades del ecosistema Big Data.</h1><p>Respuestas argumentadas sobre Hadoop, Spark, streaming, Kafka y motores SQL distribuidos.</p></div>
-          <a href="/[12-1]%20BDA%20-%20Clase.pdf" target="_blank" class="outline-button">Abrir PDF Tema 12 ↗</a>
-        </header>
-        <Topic12Activities />
-      </section>
-      <Topic12View v-else />
+      <div v-else-if="tab === 'temas'" class="theme-workspace">
+        <nav class="theme-workspace-nav" aria-label="Módulos del Tema 11">
+          <div><span>TEMA</span><strong>11</strong></div>
+          <button :class="{ active: theme11Section === 'contenido' }" @click="theme11Section = 'contenido'">Contenido</button>
+          <button :class="{ active: theme11Section === 'quiz' }" @click="theme11Section = 'quiz'">Quiz</button>
+          <button :class="{ active: theme11Section === 'actividades' }" @click="theme11Section = 'actividades'">Actividades</button>
+        </nav>
+        <TopicsView v-if="theme11Section === 'contenido'" :topics="topics" :active-topic="activeTopic" :completed="completed" @select-topic="activeTopic = $event" @toggle-complete="markComplete" />
+        <PracticeView v-else-if="theme11Section === 'quiz'" :flashcards="flashcards" :flash-index="flashIndex" :flash-revealed="flashRevealed" :streak="streak" :quiz-questions="quizQuestions" :quiz-started="quizStarted" :quiz-finished="quizFinished" :quiz-index="quizIndex" :quiz-answers="quizAnswers" :quiz-score="quizScore" @toggle-flash="flashRevealed = !flashRevealed" @next-flash="nextFlash" @start-quiz="startQuiz" @answer-quiz="answerQuiz" @select-quiz="quizIndex = $event" @finish-quiz="finishQuiz" />
+        <ActivitiesView v-else :activities="activities" />
+      </div>
+      <div v-else class="theme-workspace topic12-page">
+        <nav class="theme-workspace-nav topic12-nav" aria-label="Módulos del Tema 12">
+          <div><span>TEMA</span><strong>12</strong></div>
+          <button :class="{ active: theme12Section === 'contenido' }" @click="theme12Section = 'contenido'">Contenido</button>
+          <button :class="{ active: theme12Section === 'quiz' }" @click="theme12Section = 'quiz'">Quiz</button>
+          <button :class="{ active: theme12Section === 'actividades' }" @click="theme12Section = 'actividades'">Actividades</button>
+        </nav>
+        <Topic12View v-if="theme12Section === 'contenido'" />
+        <Topic12Quiz v-else-if="theme12Section === 'quiz'" />
+        <section v-else class="page">
+          <header class="page-header activities-header"><div><span class="eyebrow">TEMA 12 · ACTIVIDAD DE APRENDIZAJE</span><h1>Actividades del ecosistema Big Data.</h1><p>Respuestas argumentadas sobre Hadoop, Spark, streaming, Kafka y motores SQL distribuidos.</p></div><a href="/[12-1]%20BDA%20-%20Clase.pdf" target="_blank" class="outline-button">Abrir PDF Tema 12 ↗</a></header>
+          <Topic12Activities />
+        </section>
+      </div>
     </main>
   </div>
 </template>
